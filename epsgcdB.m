@@ -72,67 +72,30 @@ end
   end  
 
 % third step : X'M_1(1,1) * X'M_2(1,1) <= 0
-% Random choice of X
-  %if N >= 1
-      for i = 1:N
-          X = rand([dim, dim-k+1]);
-          while (~isfullrank(X))
-             X = rand([dim, dim-k+1]);
-          end
-        
-          v = 1:dim-k+1;
-          en = zeros(length(v),1);
-          en(1) = 1;
-          Rinf = verifylss(X' * M1,en);
-          Rsup = verifylss(X' * M2,en);
-          if Rinf(1)*Rsup(1) <= 0
-            res = true;
-            return;
-          else
-            res = false;
-          end
-      end
-      if(verfullrank(B(:,k:end)))
-          E.failure = 'B_{m-k+1} is full rank';
-          E.code = int32(4);
-      else 
-          E.failure = 'Did not found suitable X';
-          E.code = int32(3);
-      end
-  %else 
-  %    f = @(A) det_fcn(A, M1, M2, dim);
-  %    X = repmat(infsup(-1,1),dim*dim,1); %box
-  %    [gmin,~,~] = verifyglobalmin(f, X);
-  %    if(gmin.sup < 0)
-  %        res = true;
-  %    else
-  %        res = false;
-  %    end
-  %end
+% Random choices of X
+  for i = 1:N
+        X = rand([dim, dim-k+1]);
+        while (~isfullrank(X))
+           X = rand([dim, dim-k+1]);
+        end
+      
+        v = 1:dim-k+1;
+        en = zeros(length(v),1);
+        en(1) = 1;
+        Rinf = verifylss(X' * M1,en);
+        Rsup = verifylss(X' * M2,en);
+        if Rinf(1)*Rsup(1) <= 0
+          res = true;
+          return;
+        else
+          res = false;
+        end
+    end
+    if(verfullrank(B(:,k:end)))
+        E.failure = 'B_{m-k+1} is full rank';
+        E.code = int32(4);
+    else 
+        E.failure = 'Did not found suitable X';
+        E.code = int32(3);
+    end
 end  % function epsgcdB
-
-%function res = det_fcn(A, M1, M2, m)
-%    N = size(A, 2); 
-%    
-%    if N == 1
-%        A_col = A(:); 
-%        
-%        Mat_A = reshape(A_col, m, m);
-%        res = mydet(M1' * Mat_A * M2);
-%        
-%        if isnumeric(A)
-%            res = sup(res(1));
-%        end
-%        
-%   else
-%        Mat_A1 = reshape(A(:, 1), m, m);
-%        first_res = mydet(M1' * Mat_A1 * M2);
-%        
-%        res = repmat(first_res, 1, N);
-%        
-%        for i = 2:N
-%            Mat_A = reshape(A(:, i), m, m);
-%            res(i) = det(M1' * Mat_A * M2);
-%        end
-%    end
-%end
