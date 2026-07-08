@@ -17,10 +17,22 @@ end
   dim = max(degP,degQ);
 % Bezout matrix
   B = bezout(P,Q);
-  
+   
+  %case P and Q coprime
+  if(k == 0)
+      if(verfullrank(B, "qr"))
+          res = true;
+      else
+          res = false;
+          E.failure = "B is not full rank";
+          E.code = int32(1);
+      end
+      return;
+  end
+
 % first step : B_{m-k} full rank
-  if(~verfullrank(B(:,k+1:end)))
-    if(~verfullrank(B(:,k+2:end)))
+  if(~verfullrank(B(:,k+1:end), "qr"))
+    if(~verfullrank(B(:,k+2:end), "qr"))
         E.failure = 'B_{m-k-1} is not full rank either';
         E.code = int32(1);
     else 
@@ -72,30 +84,30 @@ end
   end  
 
 % third step : X'M_1(1,1) * X'M_2(1,1) <= 0
-% Random choices of X
+% N Random choice of X
   for i = 1:N
-        X = rand([dim, dim-k+1]);
-        while (~isfullrank(X))
-           X = rand([dim, dim-k+1]);
-        end
-      
-        v = 1:dim-k+1;
-        en = zeros(length(v),1);
-        en(1) = 1;
-        Rinf = verifylss(X' * M1,en);
-        Rsup = verifylss(X' * M2,en);
-        if Rinf(1)*Rsup(1) <= 0
-          res = true;
-          return;
-        else
-          res = false;
-        end
-    end
-    if(verfullrank(B(:,k:end)))
-        E.failure = 'B_{m-k+1} is full rank';
-        E.code = int32(4);
-    else 
-        E.failure = 'Did not found suitable X';
-        E.code = int32(3);
-    end
+      X = rand([dim, dim-k+1]);
+      while (~isfullrank(X))
+         X = rand([dim, dim-k+1]);
+      end
+    
+      v = 1:dim-k+1;
+      en = zeros(length(v),1);
+      en(1) = 1;
+      Rinf = verifylss(X' * M1,en);
+      Rsup = verifylss(X' * M2,en);
+      if Rinf(1)*Rsup(1) <= 0
+        res = true;
+        return;
+      else
+        res = false;
+      end
+  end
+  if(verfullrank(B(:,k:end), "qr"))
+      E.failure = 'B_{m-k+1} is full rank';
+      E.code = int32(4);
+  else 
+      E.failure = 'Did not found suitable X';
+      E.code = int32(3);
+  end
 end  % function epsgcdB

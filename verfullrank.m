@@ -3,7 +3,7 @@ function res = verfullrank(A, param)
 %
 % res = 1 implies that A is verified to have full rank
     if nargin == 1
-        param = ["qr", "singval", "spectrum", "pmod"];
+        param = "qr";
     end
     if(~isstring(param) || (~ismember('qr', param) && ...
             ~ismember('singval', param) && ~ismember('spectrum', param) ...

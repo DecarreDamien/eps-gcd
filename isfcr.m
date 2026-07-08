@@ -9,7 +9,7 @@ function res = isfcr(M)
   [Q,~] = qr(mid(M),0);
   A = Q'*intval(M);
 
-  R = inv(A);
+  R = inv(mid(A));
   n = size(R,1);
   C = mag(eye(n)-R*intval(A));
   x = ones(n,1);
